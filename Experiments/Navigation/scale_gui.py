@@ -51,7 +51,8 @@ def main_scaling(subID, experiment_type):
         "I could match the vibrations to a direction in space.",
         "I thought my responses were accurate.",
         "It felt that the vibrations were located on my skin.",
-        "It felt that the vibrations were located out in space."
+        "It felt that the vibrations were located out in space.",
+        "I could feel a change in vibrations when I got \ncloser or farther away from the target."
     ]
     confidence_scales = []
     for i, question in enumerate(questions):
