@@ -3,11 +3,11 @@ from tkinter import ttk
 import os
 import sys
 
-def make_confidence_label_updater(question, label):
+def make_confidence_label_updater(question, label, font=14):
     """Create a lambda function that updates the label with the current scale value."""
-    return lambda value: label.config(text=f"{int(float(value))} out of 7")
+    return lambda value: label.config(text=f"\n{int(float(value))}"+label['text'][2:], font=font)
 
-def submit_scaling(subID, experiment_type, confidence_scales, root):
+def submit_scaling(subID, confidence_scales, root):
     """Gather data from the UI, save it to a file, and close the application."""
     confidences = [scale.get() for scale in confidence_scales]
 
@@ -16,7 +16,7 @@ def submit_scaling(subID, experiment_type, confidence_scales, root):
     os.makedirs(folder_path, exist_ok=True)
 
     # Create and write to the file
-    filename = f"response_scale_{subID}_{experiment_type}.txt"
+    filename = f"response_scale_{subID}.txt"
     with open(os.path.join(folder_path, filename), 'w') as file:
         file.write("Survey Responses:\n")
         questions = [
@@ -24,7 +24,15 @@ def submit_scaling(subID, experiment_type, confidence_scales, root):
             "I could match the vibrations to a direction in space.",
             "I thought my responses were accurate.",
             "It felt that the vibrations were located on my skin.",
-            "It felt that the vibrations were located out in space."
+            "It felt that the vibrations were located out in space.",
+            "I could feel a change in vibration when I got closer or farther away from the target.",
+            "I thought the change in vibration improved my walking.",
+            "I could sense the goal continuously while I was walking.",
+            "I feel confident that I reached the intended goals.",
+            "I think I found the best way to the goal.",
+            "Navigating with vibrations became easier over time.",
+            "The intensity of vibrations got weaker over time.",
+            "How many different vibration patterns did you feel during the experiment?"
         ]
         for question, confidence in zip(questions, confidences):
             file.write(f"{question} {int(confidence)} out of 7\n")
@@ -32,45 +40,67 @@ def submit_scaling(subID, experiment_type, confidence_scales, root):
     print("Response saved successfully!")
     root.destroy()  # Close the window
 
-def main_scaling(subID, experiment_type):
+def main_scaling(subID):
     root = tk.Tk()
     root.title("Tactile Belt Experiment Questionnaire - Scaling Questions")
 
     # Font configuration
-    bold_large_font = ('Helvetica', 12, 'bold')
+    bold_large_font = ('Arial', 16, 'bold')
+    large_font = ('Arial', 16)
 
     # Introduction to scale questions with larger, bold font
-    tk.Label(root, text="On a scale from 1 to 7, please indicate your response to the following questions:",
+    tk.Label(root, text="On a scale from 1 to 7, please indicate your answer by moving the slider",
              font=bold_large_font).grid(row=0, column=0, columnspan=3, padx=10, pady=10)
-    tk.Label(root, text="1=Strongly disagree, 7=Strongly agree",
-    font=bold_large_font).grid(row=1, column=1, columnspan=1, padx=10, pady=10)
+    tk.Label(root, text="\t\t\t\t\t1 = Strongly disagree\t 7 = Strongly agree",
+    font=bold_large_font).grid(row=1, column=0, columnspan=3)
 
     # Questions with scales
     questions = [
-        "I could feel the vibrations clearly.",
-        "I could match the vibrations to a direction in space.",
-        "I thought my responses were accurate.",
-        "It felt that the vibrations were located on my skin.",
-        "It felt that the vibrations were located out in space."
+        "\nI could feel the vibrations clearly.",
+        "\nI could match the vibrations to a direction in space.",
+        "\nI thought my responses were accurate.",
+        "\nIt felt that the vibrations were located on my skin.",
+        "\nIt felt that the vibrations were located out in space.",
+        "\nI could feel a change in vibration when I got \ncloser or farther away from the target.",
+        "\nI thought the change in vibration improved my walking.",
+        "\nI could sense the goal continuously while I was walking.",
+        "\nI feel confident that I reached the intended goals.",
+        "\nI think I found the best way to the goal.",
+        "\nNavigating with vibrations became easier over time.",
+        "\nThe intensity of vibrations got weaker over time.",
+        "\nHow many different vibration patterns did you feel \nduring the experiment?"
     ]
     confidence_scales = []
-    for i, question in enumerate(questions):
+    for i, question in enumerate(questions[:-1]):
         row = 2 + i
-        tk.Label(root, text=question).grid(row=row, column=0, padx=10, pady=5)
-        scale = tk.Scale(root, from_=1, to=7, length=200, orient="horizontal")
-        scale.grid(row=row, column=1, padx=10, pady=5)
+        tk.Label(root, text=question, font=large_font, justify="left").grid(row=row, column=0, padx=10, pady=5, sticky="W")
+        scale = tk.Scale(root, from_=1, to=7, length=210, orient="horizontal", font=large_font)
+        scale.grid(row=row, column=1, padx=0, pady=5, sticky="W")
         scale.set(4)  # Set default position of scale to the middle
-        label = tk.Label(root, text=f"4 out of 7")
+        label = tk.Label(root, text=f"\n4 out of 7", font=large_font)
         #ticks_label = ttk.Label(root, text='1     2     3     4     5      6      7')
         #scale.pack(fill=X)
-        label.grid(row=row, column=2, padx=10, pady=5)
-        scale['command'] = make_confidence_label_updater(question, label)
+        label.grid(row=row, column=2, padx=10, pady=5, sticky="W")
+        scale['command'] = make_confidence_label_updater(question, label, font=large_font)
         confidence_scales.append(scale)
         #ticks_label.grid(row=2, column=1, padx=10, pady=5)
+    #last row with different scale
+    question=questions[-1]
+    row = 3 + i
+    tk.Label(root, text=question, font=large_font, justify="left").grid(row=row, column=0, padx=10, pady=5, sticky="W")
+    scale = tk.Scale(root, from_=1, to=4, length=120, orient="horizontal", font=large_font)
+    scale.grid(row=row, column=1, padx=0, pady=5, sticky="W")
+    scale.set(1)  # Set default position of scale to the middle
+    label = tk.Label(root, text=f"\n1 out of 4", font=large_font)
+    #ticks_label = ttk.Label(root, text='1     2     3     4     5      6      7')
+    #scale.pack(fill=X)
+    label.grid(row=row, column=2, padx=10, pady=5, sticky="W")
+    scale['command'] = make_confidence_label_updater(question, label, font=large_font)
+    confidence_scales.append(scale)
 
     # Submit button
-    submit_btn = tk.Button(root, text="Submit", command=lambda: submit_scaling(subID, experiment_type, confidence_scales, root))
-    submit_btn.grid(row=8, columnspan=3, pady=20)
+    submit_btn = tk.Button(root, text="Submit",  font=large_font, command=lambda: submit_scaling(subID, confidence_scales, root))
+    submit_btn.grid(row=15, columnspan=3, pady=20)
 
     root.mainloop()
 
@@ -91,19 +121,14 @@ def get_subject_id():
     root.mainloop()
     return subject_id
 
-
 if __name__ == "__main__":
-    subID = get_subject_id()
-    if subID is None:
-        print("No Subject ID provided.")
-        sys.exit(1)
+    
+    if len(sys.argv) > 1:
+        subID = sys.argv[1]
+    else:
+        subID = get_subject_id()
+        if subID is None:
+            print("No Subject ID provided.")
+            sys.exit(1)
 
-    # Convert subject_id to integer if necessary
-    try:
-        subID = int(subID)
-    except ValueError:
-        print("Invalid Subject ID. Please enter a valid integer.")
-        sys.exit(1)
-    experiment_type = "impulse"
-
-    main_scaling(subID, experiment_type)
+    main_scaling(subID)
